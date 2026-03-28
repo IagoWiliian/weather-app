@@ -1,41 +1,32 @@
 package com.weatherapp.service;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import com.weatherapp.client.ApiClient;
-import com.weatherapp.model.Location;
-import com.weatherapp.model.WeatherResponse;
-import com.weatherapp.model.Weather;
-import com.weatherapp.util.JsonParser;
-import com.weatherapp.util.Constants;
-
-import java.util.Map;
+import com.weatherapp.dto.WeatherDTO;
 
 public class WeatherService {
-    private final ApiClient api = new ApiClient();
 
-    public WeatherResponse getWeatherByLocation(Location location) throws Exception {
-        String city = location.getCity();
-        String url = Constants.buildUrlForCity(city);
-        String json = api.fetch(url);
+    private ApiClient apiClient = new ApiClient();
 
-        Map<String, Object> parsed = JsonParser.parseToMap(json);
-        // minimal parsing - adapt conforme a API
-        Map<String, Object> main = (Map<String, Object>) parsed.get("main");
-        Object tempObj = main != null ? main.get("temp") : null;
-        double temp = tempObj instanceof Number ? ((Number) tempObj).doubleValue() : 0.0;
+    public WeatherDTO getWeather(String city) throws Exception {
 
-        String description = "";
-        Object weatherArr = parsed.get("weather");
-        if (weatherArr instanceof java.util.List) {
-            java.util.List list = (java.util.List) weatherArr;
-            if (!list.isEmpty() && list.get(0) instanceof Map) {
-                Map w = (Map) list.get(0);
-                Object desc = w.get("description");
-                description = desc != null ? desc.toString() : "";
-            }
+        JsonObject geoJson = apiClient.getLocationData(city);
+        JsonArray results = geoJson.getAsJsonArray("results");
+
+        if (results == null || results.size() == 0) {
+            throw new Exception("Cidade não encontrada");
         }
 
-        Weather w = new Weather(description, temp);
-        WeatherResponse wd = new WeatherResponse(location, w, System.currentTimeMillis());
-        return wd;
+        JsonObject location = results.get(0).getAsJsonObject();
+        double lat = location.get("latitude").getAsDouble();
+        double lon = location.get("longitude").getAsDouble();
+
+        JsonObject weatherJson = apiClient.getWeatherData(lat, lon);
+        JsonObject current = weatherJson.getAsJsonObject("current_weather");
+
+        double temp = current.get("temperature").getAsDouble();
+
+        return new WeatherDTO(city, temp);
     }
 }

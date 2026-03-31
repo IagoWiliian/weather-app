@@ -97,6 +97,18 @@ src/main/java/com/weatherapp/
 
 ---
 
+## 🧪 Testes
+
+O projeto utiliza:
+
+- JUnit 5
+- Mockito
+
+Para rodar os testes:
+
+```bash
+mvn test
+
 ## 🔥 Melhorias futuras
 
 * Adicionar velocidade do vento 🌬️

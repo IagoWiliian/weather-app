@@ -7,7 +7,11 @@ import com.weatherapp.dto.WeatherDTO;
 
 public class WeatherService {
 
-    private ApiClient apiClient = new ApiClient();
+    private ApiClient apiClient;
+
+    public WeatherService(ApiClient apiClient) {
+        this.apiClient = apiClient;
+    }
 
     public WeatherDTO getWeather(String city) throws Exception {
 

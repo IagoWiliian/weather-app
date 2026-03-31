@@ -6,8 +6,13 @@ import com.weatherapp.ui.WeatherDisplay;
 
 public class WeatherController {
 
-    private WeatherService service = new WeatherService();
-    private WeatherDisplay display = new WeatherDisplay();
+    private WeatherService service;
+    private WeatherDisplay display;
+
+    public WeatherController(WeatherService service, WeatherDisplay display) {
+        this.service = service;
+        this.display = display;
+    }
 
     public void buscarClima(String cidade) {
         try {

@@ -1,12 +1,15 @@
 package com.weatherapp.service;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.weatherapp.client.ApiClient;
 import com.weatherapp.dto.WeatherDTO;
+import com.weatherapp.cache.CacheEntry;
 
 public class WeatherService {
 
@@ -16,26 +19,45 @@ public class WeatherService {
         this.apiClient = apiClient;
     }
 
-    public WeatherDTO getWeather(String city) throws Exception {
+public WeatherDTO getWeather(String city) throws Exception {
 
-        validateCity(city);
+    validateCity(city);
 
-        JsonObject location = getLocation(city);
+    long now = System.currentTimeMillis();
 
-        double lat = location.get("latitude").getAsDouble();
-        double lon = location.get("longitude").getAsDouble();
+    // 🔍 verifica cache
+    if (cache.containsKey(city)) {
+        CacheEntry entry = cache.get(city);
 
-        double temperature = getTemperature(lat, lon);
-
-        return new WeatherDTO(city, temperature);
+        if ((now - entry.getTimestamp()) < CACHE_TTL) {
+            System.out.println("⚡ Usando cache para: " + city);
+            return entry.getData();
+        }
     }
+
+    // 🌐 chamada real da API
+    JsonObject location = getLocation(city);
+
+    double lat = location.get("latitude").getAsDouble();
+    double lon = location.get("longitude").getAsDouble();
+
+    double temperature = getTemperature(lat, lon);
+
+    WeatherDTO dto = new WeatherDTO(city, temperature);
+
+    // 💾 salva no cache
+    cache.put(city, new CacheEntry(dto, now));
+
+    return dto;
+}
 
     private void validateCity(String city) {
         if (city == null || city.trim().isEmpty()) {
             throw new IllegalArgumentException("Cidade não pode ser vazia");
         }
     }
-
+private Map<String, CacheEntry> cache = new HashMap<>();
+private static final long CACHE_TTL = 3600000; // 1 hora (em ms)
 
     public List<WeatherDTO> getWeather(List<String> cities) {
 

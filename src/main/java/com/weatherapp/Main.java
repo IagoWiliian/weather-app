@@ -1,5 +1,7 @@
 package com.weatherapp;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 import com.weatherapp.client.ApiClient;
@@ -13,17 +15,23 @@ public class Main {
 
         Scanner scanner = new Scanner(System.in);
 
-        // 🔥 Montando dependências (manual)
         ApiClient apiClient = new ApiClient();
         WeatherService service = new WeatherService(apiClient);
         WeatherDisplay display = new WeatherDisplay();
+
         WeatherController controller = new WeatherController(service, display);
 
-        System.out.print("Digite a cidade: ");
-        String cidade = scanner.nextLine();
+       System.out.print("Digite as cidades separadas por vírgula: ");
+String input = scanner.nextLine();
 
-        controller.buscarClima(cidade);
+String[] cidadesArray = input.split(",");
 
-        scanner.close();
+List<String> cidades = new ArrayList<>();
+
+for (String cidade : cidadesArray) {
+    cidades.add(cidade.trim());
+}
+
+controller.buscarClimaEmLote(cidades);
     }
 }

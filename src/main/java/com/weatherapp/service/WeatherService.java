@@ -1,5 +1,8 @@
 package com.weatherapp.service;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.weatherapp.client.ApiClient;
@@ -13,41 +16,69 @@ public class WeatherService {
         this.apiClient = apiClient;
     }
 
-   public WeatherDTO getWeather(String city) throws Exception {
+    public WeatherDTO getWeather(String city) throws Exception {
 
-    // 🔹 Validação de entrada
-    if (city == null || city.trim().isEmpty()) {
-        throw new IllegalArgumentException("Cidade não pode ser vazia");
+        validateCity(city);
+
+        JsonObject location = getLocation(city);
+
+        double lat = location.get("latitude").getAsDouble();
+        double lon = location.get("longitude").getAsDouble();
+
+        double temperature = getTemperature(lat, lon);
+
+        return new WeatherDTO(city, temperature);
     }
 
-    // 🔹 Busca localização
-    JsonObject geoJson = apiClient.getLocationData(city);
-    JsonArray results = geoJson.getAsJsonArray("results");
-
-    if (results == null || results.size() == 0) {
-        throw new Exception("Cidade não encontrada");
+    private void validateCity(String city) {
+        if (city == null || city.trim().isEmpty()) {
+            throw new IllegalArgumentException("Cidade não pode ser vazia");
+        }
     }
 
-    JsonObject location = results.get(0).getAsJsonObject();
 
-    double lat = location.get("latitude").getAsDouble();
-    double lon = location.get("longitude").getAsDouble();
+    public List<WeatherDTO> getWeather(List<String> cities) {
 
-    // 🔹 Busca clima
-    JsonObject weatherJson = apiClient.getWeatherData(lat, lon);
+    List<WeatherDTO> results = new ArrayList<>();
 
-    if (weatherJson.get("current_weather") == null) {
-        throw new Exception("Dados de clima indisponíveis");
+    for (String city : cities) {
+        try {
+            WeatherDTO weather = getWeather(city);
+            results.add(weather);
+        } catch (Exception e) {
+            System.out.println("Erro na cidade: " + city);
+        }
     }
 
-    JsonObject current = weatherJson.getAsJsonObject("current_weather");
-
-    if (current.get("temperature") == null) {
-        throw new Exception("Temperatura não encontrada");
-    }
-
-    double temp = current.get("temperature").getAsDouble();
-
-    return new WeatherDTO(city, temp);
+    return results;
 }
+    private JsonObject getLocation(String city) throws Exception {
+
+        JsonObject geoJson = apiClient.getLocationData(city);
+        JsonArray results = geoJson.getAsJsonArray("results");
+
+        if (results == null || results.size() == 0) {
+            throw new Exception("Cidade não encontrada");
+        }
+
+        return results.get(0).getAsJsonObject();
+    }
+
+    private double getTemperature(double lat, double lon) throws Exception {
+
+        JsonObject weatherJson = apiClient.getWeatherData(lat, lon);
+
+        // 🔥 correção aqui
+        if (!weatherJson.has("current")) {
+            throw new Exception("Dados de clima indisponíveis");
+        }
+
+        JsonObject current = weatherJson.getAsJsonObject("current");
+
+        if (!current.has("temperature_2m")) {
+            throw new Exception("Temperatura não encontrada");
+        }
+
+        return current.get("temperature_2m").getAsDouble();
+    }
 }

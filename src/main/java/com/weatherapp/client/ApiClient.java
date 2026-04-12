@@ -7,6 +7,7 @@ import java.net.URL;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.weatherapp.util.HttpUtil;
 
 public class ApiClient {
 
@@ -19,10 +20,14 @@ public class ApiClient {
     }
 
     public JsonObject getWeatherData(double lat, double lon) throws Exception {
-        String url = "https://api.open-meteo.com/v1/forecast?latitude="
-                + lat + "&longitude=" + lon + "&current_weather=true";
 
-        String response = getResponse(url);
+        String url = String.format(
+                "https://api.open-meteo.com/v1/forecast?latitude=%s&longitude=%s&current=temperature_2m",
+                lat, lon
+        );
+
+        String response = HttpUtil.get(url);
+
         return JsonParser.parseString(response).getAsJsonObject();
     }
 

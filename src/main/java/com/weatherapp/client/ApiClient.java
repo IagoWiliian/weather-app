@@ -19,17 +19,17 @@ public class ApiClient {
         return JsonParser.parseString(response).getAsJsonObject();
     }
 
-    public JsonObject getWeatherData(double lat, double lon) throws Exception {
+   public JsonObject getWeatherData(double lat, double lon) throws Exception {
 
-        String url = String.format(
-                "https://api.open-meteo.com/v1/forecast?latitude=%s&longitude=%s&current=temperature_2m",
-                lat, lon
-        );
+    String url = String.format(
+            "https://api.open-meteo.com/v1/forecast?latitude=%s&longitude=%s&current=temperature_2m,relative_humidity_2m,wind_speed_10m,precipitation",
+            lat, lon
+    );
 
-        String response = HttpUtil.get(url);
+    String response = HttpUtil.get(url);
 
-        return JsonParser.parseString(response).getAsJsonObject();
-    }
+    return JsonParser.parseString(response).getAsJsonObject();
+}
 
     private String getResponse(String urlString) throws Exception {
         URL url = new URL(urlString);

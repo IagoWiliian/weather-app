@@ -144,6 +144,14 @@ mvn test
 
 ---
 
+## 🔀 Controle de Versão
+
+A versão mais completa e atual do projeto está disponível na branch **develop**, onde foram implementadas funcionalidades adicionais como cache, suporte a múltiplas cidades e melhorias na estrutura do código.
+
+A branch **main** contém uma versão mais limpa e estável do projeto, representando a base da aplicação.
+
+---
+
 ## 👨‍💻 Autor
 
 Desenvolvido por **Iago Willian** 🚀

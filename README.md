@@ -1,6 +1,6 @@
 # 🌦️ Weather App
 
-Aplicação Java que consome a API pública **Open-Meteo** para buscar e exibir dados climáticos de uma cidade informada pelo usuário.
+Aplicação Java que utiliza a API pública **Open-Meteo** para buscar e exibir dados climáticos de uma ou múltiplas cidades informadas pelo usuário.
 
 ---
 
@@ -8,23 +8,47 @@ Aplicação Java que consome a API pública **Open-Meteo** para buscar e exibir 
 
 * Java 21
 * Maven
-* Gson (para manipulação de JSON)
+* Gson (manipulação de JSON)
 * API Open-Meteo
+* JUnit 5
+* Mockito
 
 ---
 
 ## 📌 Funcionalidades
 
-* Buscar clima pelo nome da cidade
-* Exibir temperatura atual
-* Tratamento de erro para cidade inválida
-* Arquitetura em camadas:
+* 🔎 Buscar clima pelo nome da cidade
+* 🌍 Suporte a múltiplas cidades (entrada em lote)
+* 🌡️ Exibir temperatura atual
+* ⚠️ Tratamento de erro para cidade inválida
+* ⚡ Cache em memória com TTL (evita chamadas repetidas à API)
+* 🧱 Arquitetura em camadas
 
-  * Controller
-  * Service
-  * Client (API)
-  * DTO
-  * UI (console)
+---
+
+## ⚡ Cache (Otimização)
+
+A aplicação utiliza cache em memória para melhorar a performance.
+
+* Armazena resultados por cidade
+* Evita chamadas repetidas à API
+* Possui tempo de expiração (TTL)
+
+### Exemplo:
+
+```
+Entrada:
+belo horizonte, belo horizonte
+
+Saída:
+🌎 Cidade: belo horizonte
+🌡️ Temperatura: 24.5°C
+
+⚡ Usando cache para: belo horizonte
+
+🌎 Cidade: belo horizonte
+🌡️ Temperatura: 24.5°C
+```
 
 ---
 
@@ -36,7 +60,7 @@ Main → Controller → Service → ApiClient
                         API
 ```
 
-Separação de responsabilidades:
+### Separação de responsabilidades:
 
 * **Main** → entrada da aplicação
 * **Controller** → fluxo da aplicação
@@ -44,40 +68,7 @@ Separação de responsabilidades:
 * **ApiClient** → comunicação com API externa
 * **DTO** → transporte de dados
 * **UI** → exibição no console
-
----
-
-## ▶️ Como executar o projeto
-
-### Pré-requisitos
-
-* Java 21 instalado
-* Maven instalado
-
-### Passos
-
-```bash
-git clone https://github.com/IagoWiliian/weather-app.git
-cd weather-app
-
-mvn clean install
-mvn exec:java -Dexec.mainClass="com.weatherapp.Main"
-```
-
----
-
-## 💻 Exemplo de uso
-
-```
-Digite a cidade: Belo Horizonte
-
-=========================
-   WEATHER APP ☀️
-=========================
-Cidade: Belo Horizonte
-Temperatura: 20.1°C
-=========================
-```
+* **Cache** → otimização de performance
 
 ---
 
@@ -90,20 +81,74 @@ src/main/java/com/weatherapp/
 ├── service/
 ├── client/
 ├── dto/
-├── model/
+├── cache/        ← NOVO (cache com TTL)
 ├── util/
 └── ui/
 ```
 
 ---
 
+## ▶️ Como executar o projeto
+
+### Pré-requisitos
+
+* Java 21 instalado
+* Maven instalado
+
+### Passos
+
+```
+git clone https://github.com/IagoWiliian/weather-app.git
+cd weather-app
+
+mvn clean install
+mvn exec:java -Dexec.mainClass="com.weatherapp.Main"
+```
+
+---
+
+## 💻 Exemplo de uso
+
+```
+Digite as cidades separadas por vírgula: Belo Horizonte, São Paulo
+
+=========================
+   WEATHER APP ☀️
+=========================
+🌎 Cidade: Belo Horizonte
+🌡️ Temperatura: 24.5°C
+=========================
+```
+
+---
+
+## 🧪 Testes
+
+Para executar os testes:
+
+```
+mvn test
+```
+
+---
+
 ## 🔥 Melhorias futuras
 
-* Adicionar velocidade do vento 🌬️
-* Exibir descrição do clima 🌥️
-* Transformar em API com Spring Boot
-* Criar interface web (React)
-* Deploy na nuvem
+* 🌬️ Adicionar velocidade do vento
+* 🌥️ Exibir descrição do clima
+* ⚡ Paralelismo com CompletableFuture
+* 🌐 Transformar em API REST com Spring Boot
+* 💾 Cache distribuído (Redis)
+* 🎨 Criar interface web (React)
+* ☁️ Deploy na nuvem
+
+---
+
+## 🔀 Controle de Versão
+
+A versão mais completa e atual do projeto está disponível na branch **develop**, onde foram implementadas funcionalidades adicionais como cache, suporte a múltiplas cidades e melhorias na estrutura do código.
+
+A branch **main** contém uma versão mais limpa e estável do projeto, representando a base da aplicação.
 
 ---
 
